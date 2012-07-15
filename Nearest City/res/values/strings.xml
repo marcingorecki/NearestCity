@@ -1,0 +1,12 @@
+<resources>
+
+    <string name="app_name">Nearest City</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">Nearest City</string>
+    <string name="Calculate">Calculate</string>
+    <string name="getLocation">Get Location</string>
+    <string name="turnOffButton">Turn Off</string>
+    <string name="quit">Quit</string>
+
+</resources>

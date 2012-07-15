@@ -1,0 +1,65 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity" >
+
+    <EditText
+        android:id="@+id/lonEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="51dp"
+        android:ems="10"
+        android:inputType="text"
+        android:text="30.523716" />
+
+    <EditText
+        android:id="@+id/latEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/lonEditText"
+        android:layout_below="@+id/lonEditText"
+        android:ems="10"
+        android:inputType="text"
+        android:text="-97.667363" />
+
+    <EditText
+        android:id="@+id/nearestEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/latEditText"
+        android:layout_below="@+id/latEditText"
+        android:ems="10"
+        android:inputType="text" />
+
+    <Button
+        android:id="@+id/calculateButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/nearestEditText"
+        android:layout_below="@+id/nearestEditText"
+        android:onClick="buttonClicked"
+        android:text="@string/Calculate" />
+
+    <Button
+        android:id="@+id/getLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/nearestEditText"
+        android:layout_below="@+id/nearestEditText"
+        android:layout_toRightOf="@+id/calculateButton"
+        android:onClick="getLocation"
+        android:text="@string/getLocation" />
+
+    <Button
+        android:id="@+id/turnoffButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/getLocation"
+        android:layout_alignRight="@+id/getLocation"
+        android:layout_below="@+id/getLocation"
+        android:onClick="turnOffClicked"
+        android:text="@string/turnOffButton" />
+
+</RelativeLayout>
