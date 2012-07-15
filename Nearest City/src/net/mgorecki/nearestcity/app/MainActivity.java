@@ -1,5 +1,6 @@
 package net.mgorecki.nearestcity.app;
 
+import dalvik.system.VMRuntime;
 import net.mgorecki.nearestcity.GeoPoint;
 import net.mgorecki.nearestcity.NearestGeoPoint;
 import net.mgorecki.nearestcity.service.GetNearestService;
@@ -159,6 +160,7 @@ public class MainActivity extends Activity implements OnInitListener {
 		nearestEdit.setText(cityName);
 		displayToast(cityName);
 		displayNotification(cityName, distance);
+		displayLocation(location);
 		talk(cityName);
 	}
 
@@ -185,6 +187,7 @@ public class MainActivity extends Activity implements OnInitListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		setContentView(R.layout.activity_main);
 
 		lonEdit = (EditText) findViewById(R.id.lonEditText);

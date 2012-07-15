@@ -8,5 +8,7 @@
     <string name="getLocation">Get Location</string>
     <string name="turnOffButton">Turn Off</string>
     <string name="quit">Quit</string>
+    <string name="Longitude">Longitude</string>
+    <string name="Latitude">Latitude</string>
 
 </resources>
