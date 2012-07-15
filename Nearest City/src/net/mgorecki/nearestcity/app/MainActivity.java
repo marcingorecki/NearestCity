@@ -1,6 +1,5 @@
 package net.mgorecki.nearestcity.app;
 
-import dalvik.system.VMRuntime;
 import net.mgorecki.nearestcity.GeoPoint;
 import net.mgorecki.nearestcity.NearestGeoPoint;
 import net.mgorecki.nearestcity.service.GetNearestService;
@@ -11,6 +10,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -23,15 +23,17 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity implements OnInitListener {
 
-	static EditText lonEdit;
-	static EditText latEdit;
-	static EditText nearestEdit;
+	TextView lonEdit;
+	TextView latEdit;
+	TextView nearestLabel;
+	Button onOffButton;
+	TextView distance;
 
 	private TextToSpeech talker;
 
@@ -41,15 +43,9 @@ public class MainActivity extends Activity implements OnInitListener {
 
 	private static final int HELLO_ID = 1;
 
-	private static String lastToast = null;
-	private static String lastNotification = null;
-	private static double lastNotificationDistance = Double.MAX_VALUE;
-	private static String lastTold = null;
-
 	LocationListener locationListener = new LocationListener() {
 
 		public void onLocationChanged(Location location) {
-			displayLocation(location);
 			findCity(location);
 		}
 
@@ -64,24 +60,23 @@ public class MainActivity extends Activity implements OnInitListener {
 
 	};
 
-	private void displayLocation(Location location) {
-		lonEdit.setText(String.valueOf(location.getLongitude()));
-		latEdit.setText(String.valueOf(location.getLatitude()));
+	private String pointName(NearestGeoPoint point) {
+		return point.getPoint().getName() + ", " + point.getPoint().getState();
 	}
 
-	private void findCity() {
-		float lon = Float.parseFloat(lonEdit.getText().toString());
-		float lat = Float.parseFloat(latEdit.getText().toString());
-
-		Location location = new Location(LocationManager.GPS_PROVIDER);
-		location.setLatitude(lat);
-		location.setLongitude(lon);
+	private void displayLocation(NearestGeoPoint nearest, Location currentLocation) {
+		lonEdit.setText(String.valueOf(currentLocation.getLongitude()));
+		latEdit.setText(String.valueOf(currentLocation.getLatitude()));
+		if(nearest!=null){
+			nearestLabel.setText(pointName(nearest));
+			distance.setText(DistanceFormatter.prettyMilesFromMeters(nearest.getDistance()));
+		}
 	}
 
 	private void displayNotification(String text, double distance) {
 
-		boolean newPlace = !text.equals(MainActivity.lastNotification);
-		boolean distanceUpdate = Math.abs(distance - MainActivity.lastNotificationDistance) > UPDATE_EVERY_METERS;
+		boolean newPlace = !text.equals(getMyApplication().lastNotification);
+		boolean distanceUpdate = Math.abs(distance - getMyApplication().lastNotificationDistance) > UPDATE_EVERY_METERS;
 
 		if (newPlace || distanceUpdate) {
 			String ns = Context.NOTIFICATION_SERVICE;
@@ -105,22 +100,22 @@ public class MainActivity extends Activity implements OnInitListener {
 			notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
 
 			mNotificationManager.notify(HELLO_ID, notification);
-			MainActivity.lastNotification = text;
-			MainActivity.lastNotificationDistance = distance;
+			getMyApplication().lastNotification = text;
+			getMyApplication().lastNotificationDistance = distance;
 		} else {
 			Log.d(LISTENER, "Skipping notification. " + text + " already displayesd");
 		}
 	}
 
 	private void talk(String text) {
-		if (!text.equals(MainActivity.lastTold)) {
+		if (!text.equals(getMyApplication().lastTold)) {
 			talker.speak(text, TextToSpeech.QUEUE_FLUSH, null);
-			MainActivity.lastTold = text;
+			getMyApplication().lastTold = text;
 		}
 	}
 
 	private void displayToast(String text) {
-		if (!text.equals(MainActivity.lastToast)) {
+		if (!text.equals(getMyApplication().lastToast)) {
 
 			LayoutInflater inflater = getLayoutInflater();
 			View layout = inflater.inflate(R.layout.toast, (ViewGroup) findViewById(R.id.toast_layout_root));
@@ -134,7 +129,7 @@ public class MainActivity extends Activity implements OnInitListener {
 			toast.setView(layout);
 			toast.show();
 
-			MainActivity.lastToast = text;
+			getMyApplication().lastToast = text;
 
 		} else {
 			Log.d(LISTENER, "Skipping toast. " + text + " already displayesd");
@@ -152,55 +147,88 @@ public class MainActivity extends Activity implements OnInitListener {
 		NearestGeoPoint nearest = gn.getNearest(lat, lon);
 		GeoPoint city = nearest.getPoint();
 
-		String cityName = city.getName() + "," + city.getState();
+		String cityName = pointName(nearest);
 		double distance = nearest.getDistance();
 
 		Log.d(ACTIVITY, "got: " + city);
 
-		nearestEdit.setText(cityName);
+		// update application state
+		getMyApplication().lastNGP = nearest;
+		getMyApplication().lastLocation = location;
+
 		displayToast(cityName);
 		displayNotification(cityName, distance);
-		displayLocation(location);
+		refreshDisplay();
 		talk(cityName);
 	}
 
-	public void quitClicked(View target) {
+	private void refreshDisplay() {
 
+		// udpate references to components in the view
+		lonEdit = (TextView) findViewById(R.id.lonEditText);
+		latEdit = (TextView) findViewById(R.id.latEditText);
+		nearestLabel = (TextView) findViewById(R.id.nearestCity);
+		onOffButton = (Button) findViewById(R.id.getLocation);
+		distance = (TextView) findViewById(R.id.distance);
+
+		// get latest location and nearest geo point
+		NearestGeoPoint nearest = getMyApplication().lastNGP;
+		Location currentLocation = getMyApplication().lastLocation;
+		if (currentLocation == null) {
+			LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+			currentLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+		}
+		//update the view
+		displayLocation(nearest, currentLocation);
+		updateButtonLabel();
 	}
 
-	public void turnOffClicked(View target) {
-		LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-		locationManager.removeUpdates(locationListener);
+	private void updateButtonLabel() {
+		Log.d(ACTIVITY, "Updating button state");
+		if (getMyApplication().isListenerOn) {
+			String msg = getResources().getString(R.string.turnOff);
+			onOffButton.setText(msg);
+		} else {
+			String msg = getResources().getString(R.string.turnOn);
+			onOffButton.setText(msg);
+		}
+	}
 
+	private NearestApplication getMyApplication() {
+		return (NearestApplication) getApplication();
 	}
 
 	public void getLocation(View target) {
-		LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 1, locationListener);
-		nearestEdit.setText("Waiting for location");
+		if (!getMyApplication().isListenerOn) {
+			nearestLabel.setText("Waiting for location");
+			LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 1, locationListener);
+			getMyApplication().isListenerOn = true;
+		} else {
+			LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+			locationManager.removeUpdates(locationListener);
+			getMyApplication().isListenerOn = false;
+		}
+		updateButtonLabel();
 	}
 
-	public void buttonClicked(View target) {
-		findCity();
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		Log.d(ACTIVITY, "Orientation changed, redrawing");
+		super.onConfigurationChanged(newConfig);
+		setContentView(R.layout.activity_main);
+		refreshDisplay();
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		setContentView(R.layout.activity_main);
 
-		lonEdit = (EditText) findViewById(R.id.lonEditText);
-		latEdit = (EditText) findViewById(R.id.latEditText);
-		nearestEdit = (EditText) findViewById(R.id.nearestEditText);
-
 		talker = new TextToSpeech(this, this);
-		
-		LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		if(location!=null){
-			displayLocation(location);
-		}
+
+		refreshDisplay();
 	}
 
 	@Override

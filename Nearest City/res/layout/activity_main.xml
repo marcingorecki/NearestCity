@@ -4,88 +4,77 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity" >
 
-    <EditText
-        android:id="@+id/lonEditText"
+    <LinearLayout
+        android:id="@+id/linearLayout1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="52dp"
-        android:ems="10"
-        android:inputType="text|numberDecimal" >
+        android:orientation="vertical" >
 
-        <requestFocus />
-    </EditText>
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/currentLocationLabel" />
 
-    <EditText
-        android:id="@+id/latEditText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/lonEditText"
-        android:layout_below="@+id/lonEditText"
-        android:ems="10"
-        android:inputType="text|numberDecimal" />
+        <TextView
+            android:id="@+id/nearestCity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <EditText
-        android:id="@+id/nearestEditText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/latEditText"
-        android:layout_below="@+id/latEditText"
-        android:clickable="false"
-        android:ems="10"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:inputType="none"
-        android:linksClickable="false" />
+        <TextView
+            android:id="@+id/distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
-    <Button
-        android:id="@+id/calculateButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/nearestEditText"
-        android:layout_below="@+id/nearestEditText"
-        android:onClick="buttonClicked"
-        android:text="@string/Calculate" />
+        <Button
+            android:id="@+id/getLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:onClick="getLocation"
+            android:text="@string/turnOn" />
 
-    <Button
-        android:id="@+id/getLocation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/calculateButton"
-        android:layout_alignBottom="@+id/calculateButton"
-        android:layout_alignRight="@+id/nearestEditText"
-        android:layout_toRightOf="@+id/calculateButton"
-        android:onClick="getLocation"
-        android:text="@string/getLocation" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
 
-    <Button
-        android:id="@+id/turnoffButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/calculateButton"
-        android:layout_below="@+id/calculateButton"
-        android:layout_toLeftOf="@+id/getLocation"
-        android:onClick="turnOffClicked"
-        android:text="@string/turnOffButton" />
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/Longitude" />
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/lonEditText"
-        android:layout_alignBottom="@+id/lonEditText"
-        android:layout_toLeftOf="@+id/lonEditText"
-        android:text="@string/Longitude" />
+            <TextView
+                android:id="@+id/lonEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10" />
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/latEditText"
-        android:layout_alignBottom="@+id/latEditText"
-        android:layout_alignLeft="@+id/textView1"
-        android:text="@string/Latitude" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/Latitude" />
+
+            <TextView
+                android:id="@+id/latEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </RelativeLayout>

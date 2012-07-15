@@ -10,5 +10,8 @@
     <string name="quit">Quit</string>
     <string name="Longitude">Longitude</string>
     <string name="Latitude">Latitude</string>
+    <string name="currentLocationLabel">Nearest city</string>
+    <string name="turnOff">Turn Off</string>
+    <string name="turnOn">Turn On</string>
 
 </resources>
